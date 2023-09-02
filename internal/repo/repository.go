@@ -151,6 +151,21 @@ func (r *Repository) GetDevices(ctx context.Context, p DeviceDTO) (result []Devi
 	return result, nil
 }
 
+func (r *Repository) GetPowerfulDevices(ctx context.Context) (result []Device, err error) {
+	q := "SELECT DISTINCT devices.id,devices.name as name, cost,size,power,hashrate,algorithm,uid,video_url,c.name as coin_name,     " +
+		"           h.name as hash_name,ot.name as offer_name,recommended,dp.name as brand_name FROM devices    JOIN device_coin dc on devices.id = dc.device_id  " +
+		"  join coins c on dc.coin_id = c.id join device_producers dp on dp.id = devices.producer_id  " +
+		"  join hashrate h on h.id = devices.hashrate_id   " +
+		" join offer_types ot on devices.offer_type  ORDER BY  power  DESC LIMIT 6 "
+
+	err = r.db.SelectContext(ctx, &result, q)
+	if err != nil {
+		return []Device{}, err
+	}
+
+	return result, nil
+}
+
 func (r *Repository) GetDeviceImage(ctx context.Context, p DeviceImageDTO) (result []DeviceImage, err error) {
 	args := make([]interface{}, len(p.DeviceID))
 	for i, id := range p.DeviceID {

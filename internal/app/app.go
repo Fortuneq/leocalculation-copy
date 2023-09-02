@@ -116,6 +116,14 @@ func Run() {
 		}
 		return c.Status(fiber.StatusOK).JSON((result))
 	}).Name("api")
+
+	app.Get("/api/get_powerful_device", func(c *fiber.Ctx) error {
+		result, err := uc.GetPowerfulDevices(c.Context())
+		if err != nil {
+			return err
+		}
+		return c.Status(fiber.StatusOK).JSON((result))
+	}).Name("api")
 	app.Post("/api/get_device_image", func(c *fiber.Ctx) error {
 		var p DeviceImageDTO
 		if err := c.BodyParser(&p); err != nil {

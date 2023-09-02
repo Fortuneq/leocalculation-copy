@@ -46,6 +46,15 @@ func (r *Usecase) GetDevices(ctx context.Context, p DeviceDTO) ([]repo.Device, e
 	}
 	return result, nil
 }
+func (r *Usecase) GetPowerfulDevices(ctx context.Context) ([]repo.Device, error) {
+
+	//Абстрактный sql ,  с которого получаем данные
+	result, err := r.db.GetPowerfulDevices(ctx)
+	if err != nil {
+		return []repo.Device{}, err
+	}
+	return result, nil
+}
 
 func (r *Usecase) GetDeviceImage(ctx context.Context, p DeviceImageDTO) ([]repo.DeviceImage, error) {
 	some := repo.DeviceImageDTO{DeviceID: p.DeviceID}

@@ -25,6 +25,16 @@ type DeviceDTO struct {
 	CoinID       sql.NullInt64   `json:"coinID,omitempty"`
 	Recommended  sql.NullInt64   `json:"recommended,omitempty"`
 }
+type DeviceImageDTO struct {
+	DeviceID []sql.NullInt64 `json:"deviceID,omitempty"`
+}
+
+type ArticleImageDTO struct {
+	ArticleID []sql.NullInt64 `json:"articleID,omitempty"`
+}
+type CaseImageDTO struct {
+	CaseID []sql.NullInt64 `json:"caseID,omitempty"`
+}
 
 func (r *Usecase) GetDevices(ctx context.Context, p DeviceDTO) ([]repo.Device, error) {
 	some := repo.DeviceDTO{DeviceID: p.DeviceID, PriceLow: p.PriceLow, PriceHigh: p.PriceHigh, PowerLow: p.PowerLow, PowerHigh: p.PowerHigh, HashrateHigh: p.HashrateHigh, HashrateLow: p.HashrateLow, HashrateID: p.HashrateID, BrandID: p.BrandID, OfferID: p.OfferID, CoinID: p.CoinID, Recommended: p.Recommended}
@@ -33,6 +43,39 @@ func (r *Usecase) GetDevices(ctx context.Context, p DeviceDTO) ([]repo.Device, e
 	result, err := r.db.GetDevices(ctx, some)
 	if err != nil {
 		return []repo.Device{}, err
+	}
+	return result, nil
+}
+
+func (r *Usecase) GetDeviceImage(ctx context.Context, p DeviceImageDTO) ([]repo.DeviceImage, error) {
+	some := repo.DeviceImageDTO{DeviceID: p.DeviceID}
+
+	//Абстрактный sql ,  с которого получаем данные
+	result, err := r.db.GetDeviceImage(ctx, some)
+	if err != nil {
+		return []repo.DeviceImage{}, err
+	}
+	return result, nil
+}
+
+func (r *Usecase) GetArticleImage(ctx context.Context, p ArticleImageDTO) ([]repo.ArticleImage, error) {
+	some := repo.ArticleImageDTO{ArticleID: p.ArticleID}
+
+	//Абстрактный sql ,  с которого получаем данные
+	result, err := r.db.GetArticleImage(ctx, some)
+	if err != nil {
+		return []repo.ArticleImage{}, err
+	}
+	return result, nil
+}
+
+func (r *Usecase) GetCaseImage(ctx context.Context, p CaseImageDTO) ([]repo.CaseImage, error) {
+	some := repo.CaseImageDTO{CaseID: p.CaseID}
+
+	//Абстрактный sql ,  с которого получаем данные
+	result, err := r.db.GetCaseImages(ctx, some)
+	if err != nil {
+		return []repo.CaseImage{}, err
 	}
 	return result, nil
 }

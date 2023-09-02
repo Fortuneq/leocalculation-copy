@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/jmoiron/sqlx"
 	null "gopkg.in/guregu/null.v3/zero"
+	"strings"
 )
 
 type Repository struct {
@@ -15,7 +16,6 @@ type Device struct {
 	Name        string  `db:"name"`
 	Id          int64   `db:"id"`
 	Cost        float64 `db:"cost"`
-	Image       string  `db:"image"`
 	Size        string  `db:"size"`
 	Power       float64 `db:"power"`
 	Hashrate    float64 `db:"hashrate"`
@@ -27,6 +27,21 @@ type Device struct {
 	BrandName   string  `db:"brand_name"`
 	OfferName   string  `db:"offer_name"`
 	Recommended int     `db:"recommended"`
+}
+
+type DeviceImage struct {
+	ID    int64  `db:"id"`
+	Image string `db:"image"`
+}
+type CaseImage struct {
+	ID int64 `db:"id"`
+
+	Image string `db:"image"`
+}
+
+type ArticleImage struct {
+	ID    int64  `db:"id"`
+	Image string `db:"image"`
 }
 
 type Brand struct {
@@ -89,6 +104,18 @@ type DeviceDTO struct {
 	Recommended  sql.NullInt64   `json:"recommended,omitempty"`
 }
 
+type DeviceImageDTO struct {
+	DeviceID []sql.NullInt64 `json:"deviceID,omitempty"`
+}
+
+type ArticleImageDTO struct {
+	ArticleID []sql.NullInt64 `json:"articleID,omitempty"`
+}
+
+type CaseImageDTO struct {
+	CaseID []sql.NullInt64 `json:"caseID,omitempty"`
+}
+
 func (r *Repository) GetDevice(ctx context.Context, id int) (Device, error) {
 
 	//Абстрактный sql ,  с которого получаем данные
@@ -107,7 +134,7 @@ func (r *Repository) GetDevice(ctx context.Context, id int) (Device, error) {
 func (r *Repository) GetDevices(ctx context.Context, p DeviceDTO) (result []Device, err error) {
 	q := ""
 	//Абстрактный sql ,  с которого получаем данные
-	q = "SELECT DISTINCT devices.id,devices.name as name, cost,image,size,power,hashrate,algorithm,uid,video_url,c.name as coin_name,     " +
+	q = "SELECT DISTINCT devices.id,devices.name as name, cost,size,power,hashrate,algorithm,uid,video_url,c.name as coin_name,     " +
 		"           h.name as hash_name,ot.name as offer_name,recommended,dp.name as brand_name FROM devices    JOIN device_coin dc on devices.id = dc.device_id  " +
 		"  join coins c on dc.coin_id = c.id join device_producers dp on dp.id = devices.producer_id  " +
 		"  join hashrate h on h.id = devices.hashrate_id   " +
@@ -121,6 +148,54 @@ func (r *Repository) GetDevices(ctx context.Context, p DeviceDTO) (result []Devi
 		return []Device{}, err
 	}
 
+	return result, nil
+}
+
+func (r *Repository) GetDeviceImage(ctx context.Context, p DeviceImageDTO) (result []DeviceImage, err error) {
+	args := make([]interface{}, len(p.DeviceID))
+	for i, id := range p.DeviceID {
+		args[i] = id
+	}
+	stmt := `SELECT id,image from devices where id in(?` + strings.Repeat(",?", len(args)-1) + `)`
+	err = r.db.SelectContext(ctx, &result, stmt, args...)
+	if err != nil {
+		return []DeviceImage{}, err
+	}
+	return result, nil
+}
+
+func (r *Repository) GetArticleImage(ctx context.Context, p ArticleImageDTO) (result []ArticleImage, err error) {
+	args := make([]interface{}, len(p.ArticleID))
+	for i, id := range p.ArticleID {
+		args[i] = id
+	}
+	stmt := `SELECT id,image from articles where id in(?` + strings.Repeat(",?", len(args)-1) + `)`
+	err = r.db.SelectContext(ctx, &result, stmt, args...)
+	if err != nil {
+		return []ArticleImage{}, err
+	}
+	return result, nil
+}
+
+func (r *Repository) GetCaseImages(ctx context.Context, p CaseImageDTO) (result []CaseImage, err error) {
+	args := make([]interface{}, len(p.CaseID))
+	for i, id := range p.CaseID {
+		args[i] = id
+	}
+	stmt := `SELECT id,image from cases where id in(?` + strings.Repeat(",?", len(args)-1) + `)`
+	err = r.db.SelectContext(ctx, &result, stmt, args...)
+	if err != nil {
+		return []CaseImage{}, err
+	}
+	return result, nil
+}
+
+func (r *Repository) GetCaseImage(ctx context.Context, id int) (result CaseImage, err error) {
+	q := "SELECT image from cases where id = ?"
+	err = r.db.GetContext(ctx, &result, q, id)
+	if err != nil {
+		return CaseImage{}, err
+	}
 	return result, nil
 }
 

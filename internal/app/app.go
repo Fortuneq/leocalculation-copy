@@ -4,6 +4,7 @@ import (
 	"BTCcalc/internal/repo"
 	"BTCcalc/internal/usecase"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
@@ -37,6 +38,18 @@ type DeviceDTO struct {
 	OfferID      null.Int   `json:"offerID,omitempty"`
 	CoinID       null.Int   `json:"coinID,omitempty"`
 	Recommended  null.Int   `json:"recommended,omitempty"`
+}
+
+type DeviceImageDTO struct {
+	DeviceID []null.Int `json:"deviceID,omitempty"`
+}
+
+type ArticleImageDTO struct {
+	ArticleID []null.Int `json:"articleID,omitempty"`
+}
+
+type CaseImageDTO struct {
+	CaseID []null.Int `json:"caseID,omitempty"`
 }
 
 type ReviewDTO struct {
@@ -98,6 +111,59 @@ func Run() {
 			HashrateID: p.HashrateID.NullInt64, BrandID: p.BrandID.NullInt64, OfferID: p.OfferID.NullInt64, CoinID: p.CoinID.NullInt64, Recommended: p.Recommended.NullInt64}
 
 		result, err := uc.GetDevices(c.Context(), some)
+		if err != nil {
+			return err
+		}
+		return c.Status(fiber.StatusOK).JSON((result))
+	}).Name("api")
+	app.Post("/api/get_device_image", func(c *fiber.Ctx) error {
+		var p DeviceImageDTO
+		if err := c.BodyParser(&p); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
+		}
+		some := make([]sql.NullInt64, 1)
+		for _, v := range p.DeviceID {
+			some = append(some, v.NullInt64)
+		}
+		d := usecase.DeviceImageDTO{DeviceID: some}
+
+		result, err := uc.GetDeviceImage(c.Context(), d)
+		if err != nil {
+			return err
+		}
+		return c.Status(fiber.StatusOK).JSON((result))
+	}).Name("api")
+
+	app.Post("/api/get_article_image", func(c *fiber.Ctx) error {
+		var p ArticleImageDTO
+		if err := c.BodyParser(&p); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
+		}
+		some := make([]sql.NullInt64, 1)
+		for _, v := range p.ArticleID {
+			some = append(some, v.NullInt64)
+		}
+		d := usecase.ArticleImageDTO{ArticleID: some}
+
+		result, err := uc.GetArticleImage(c.Context(), d)
+		if err != nil {
+			return err
+		}
+		return c.Status(fiber.StatusOK).JSON((result))
+	}).Name("api")
+
+	app.Post("/api/get_case_image", func(c *fiber.Ctx) error {
+		var p CaseImageDTO
+		if err := c.BodyParser(&p); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
+		}
+		some := make([]sql.NullInt64, 1)
+		for _, v := range p.CaseID {
+			some = append(some, v.NullInt64)
+		}
+		d := usecase.CaseImageDTO{CaseID: some}
+
+		result, err := uc.GetCaseImage(c.Context(), d)
 		if err != nil {
 			return err
 		}

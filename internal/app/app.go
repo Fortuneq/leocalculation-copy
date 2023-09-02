@@ -56,6 +56,28 @@ type ReviewDTO struct {
 	DeviceID null.Int `json:"deviceID,omitempty"`
 	ReviewID int      `json:"reviewID,omitempty"`
 }
+
+type GetCallDTO struct {
+	Name        string `json:"name"`
+	PhoneNumber string `json:"phoneNumber"`
+}
+
+type WriteReviewDTO struct {
+	Stars       int64  `json:"stars"`
+	Text        string `json:"text"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phoneNumber"`
+}
+
+type WriteDeviceReviewDTO struct {
+	DeviceID    int64  `json:"deviceID"`
+	Stars       int64  `json:"stars"`
+	Amount      int64  `json:"amount"`
+	Text        string `json:"text"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phoneNumber"`
+}
+
 type ArticleDTO struct {
 	ArticleID null.Int `json:"articleID,omitempty"`
 }
@@ -124,6 +146,7 @@ func Run() {
 		}
 		return c.Status(fiber.StatusOK).JSON((result))
 	}).Name("api")
+
 	app.Post("/api/get_device_image", func(c *fiber.Ctx) error {
 		var p DeviceImageDTO
 		if err := c.BodyParser(&p); err != nil {
@@ -188,6 +211,42 @@ func Run() {
 			return err
 		}
 		return c.Status(fiber.StatusOK).JSON((result))
+	}).Name("api")
+
+	app.Post("/api/get_call", func(c *fiber.Ctx) error {
+		var p GetCallDTO
+		if err := c.BodyParser(&p); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
+		}
+		_, err := uc.GetCall(c.Context(), p.Name, p.PhoneNumber)
+		if err != nil {
+			return err
+		}
+		return c.SendStatus(fiber.StatusOK)
+	}).Name("api")
+
+	app.Post("/api/write_review", func(c *fiber.Ctx) error {
+		var p WriteReviewDTO
+		if err := c.BodyParser(&p); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
+		}
+		err := uc.WriteReview(c.Context(), p.Email, p.PhoneNumber, p.Text, p.Stars)
+		if err != nil {
+			return err
+		}
+		return c.SendStatus(fiber.StatusOK)
+	}).Name("api")
+
+	app.Post("/api/write_device_review", func(c *fiber.Ctx) error {
+		var p WriteDeviceReviewDTO
+		if err := c.BodyParser(&p); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
+		}
+		err := uc.WriteDeviceReview(c.Context(), p.Email, p.PhoneNumber, p.Text, p.DeviceID, p.Stars, p.Amount)
+		if err != nil {
+			return err
+		}
+		return c.SendStatus(fiber.StatusOK)
 	}).Name("api")
 
 	app.Post("/api/get_article", func(c *fiber.Ctx) error {

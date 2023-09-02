@@ -99,6 +99,26 @@ func (r *Usecase) GetReviews(ctx context.Context, id null.Int) ([]repo.DeviceRev
 	}
 	return result, nil
 }
+func (r *Usecase) GetCall(ctx context.Context, name string, phone string) ([]repo.DeviceReviews, error) {
+	//somecode
+	return nil, nil
+}
+
+func (r *Usecase) WriteReview(ctx context.Context, email string, phone string, text string, stars int64) (err error) {
+	err = r.db.InsertReview(ctx, email, text, phone, stars)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Usecase) WriteDeviceReview(ctx context.Context, email string, phone string, text string, deviceID, stars, amount int64) (err error) {
+	err = r.db.InsertDeviceReview(ctx, email, text, phone, deviceID, stars, amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func (r *Usecase) GetArticles(ctx context.Context, id null.Int) ([]repo.Articles, error) {
 

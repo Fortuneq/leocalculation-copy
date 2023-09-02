@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	null "gopkg.in/guregu/null.v3/zero"
 	"strings"
+	"time"
 )
 
 type Repository struct {
@@ -227,7 +228,31 @@ func (r *Repository) GetDeviceReviews(ctx context.Context, id null.Int) (result 
 
 	return result, nil
 }
+func (r *Repository) InsertReview(ctx context.Context, email, text, phone string, stars int64) (err error) {
+	q := ""
+	//Абстрактный sql ,  с которого получаем данные
 
+	q = "INSERT INTO company_reviews(email,text,name,stars) VALUES (?,?,?,?) "
+
+	_, err = r.db.ExecContext(ctx, q, email, text, phone, stars)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func (r *Repository) InsertDeviceReview(ctx context.Context, email, text, phone string, deviceID, stars, amount int64) (err error) {
+	q := ""
+	//Абстрактный sql ,  с которого получаем данные
+
+	q = "INSERT INTO device_reviews(email,review_text,name,device_id,stars,amount,date) VALUES (?,?,?,?,?,?,?)"
+
+	_, err = r.db.ExecContext(ctx, q, email, text, phone, deviceID, stars, amount, time.Now())
+	if err != nil {
+		return err
+	}
+	return err
+}
 func (r *Repository) GetArticles(ctx context.Context, id null.Int) (result []Articles, err error) {
 
 	//Абстрактный sql ,  с которого получаем данные

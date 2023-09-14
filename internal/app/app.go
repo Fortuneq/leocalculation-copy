@@ -306,7 +306,7 @@ func Run() {
 	data, _ := json.MarshalIndent(app.GetRoute("api"), "", "  ")
 	fmt.Print(string(data))
 
-	log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":80"))
 }
 
 func GetBTCHashrate(some string) (b hashValues) {

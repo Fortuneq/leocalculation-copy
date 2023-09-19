@@ -20,9 +20,9 @@ type DeviceDTO struct {
 	HashrateLow  sql.NullFloat64 `json:"hashrateLow,omitempty"`
 	HashrateHigh sql.NullFloat64 `json:"hashrateHigh,omitempty"`
 	HashrateID   sql.NullInt64   `json:"hashrateID,omitempty"`
-	BrandID      sql.NullInt64   `json:"brandID,omitempty"`
-	OfferID      sql.NullInt64   `json:"offerID,omitempty"`
-	CoinID       sql.NullInt64   `json:"coinID,omitempty"`
+	BrandID      []sql.NullInt64 `json:"brandID,omitempty"`
+	OfferID      []sql.NullInt64 `json:"offerID,omitempty"`
+	CoinID       []sql.NullInt64 `json:"coinID,omitempty"`
 	Recommended  sql.NullInt64   `json:"recommended,omitempty"`
 }
 type DeviceImageDTO struct {

@@ -8,7 +8,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	null "gopkg.in/guregu/null.v3/zero"
 	"io"
 	"io/ioutil"
@@ -34,9 +36,9 @@ type DeviceDTO struct {
 	HashrateLow  null.Float `json:"hashrateLow,omitempty"`
 	HashrateHigh null.Float `json:"hashrateHigh,omitempty"`
 	HashrateID   null.Int   `json:"hashrateID,omitempty"`
-	BrandID      null.Int   `json:"brandID,omitempty"`
-	OfferID      null.Int   `json:"offerID,omitempty"`
-	CoinID       null.Int   `json:"coinID,omitempty"`
+	BrandID      []null.Int `json:"brandID,omitempty"`
+	OfferID      []null.Int `json:"offerID,omitempty"`
+	CoinID       []null.Int `json:"coinID,omitempty"`
 	Recommended  null.Int   `json:"recommended,omitempty"`
 }
 
@@ -103,9 +105,13 @@ type hashValues struct {
 }
 
 func Run() {
-	app := fiber.New()
+	engine := html.New("front", ".html")
 
-	db, err := sqlx.Open("mysql", "root:dCmd5e5A6hUN8Yv@(193.109.84.90:3306)/leomine_schema")
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
+	app.Static("/", "front")
+	db, err := sqlx.Open("postgres", "postgres://postgres:dCmd5e5A6hUN8Yv@193.109.84.90/leomine?sslmode=disable")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -123,14 +129,33 @@ func Run() {
 		return calculate(c, repo)
 	}).Name("api")
 
+	app.Get("/", func(c *fiber.Ctx) error {
+		// Render index
+		return c.Render("main", fiber.Map{
+			"Title": "Hello, World!",
+		})
+	})
+
 	app.Post("/api/get_device", func(c *fiber.Ctx) error {
 		var p DeviceDTO
 		if err := c.BodyParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
 		}
+		brandArr := []sql.NullInt64{}
+		for _, v := range p.BrandID {
+			brandArr = append(brandArr, v.NullInt64)
+		}
+		offerArr := []sql.NullInt64{}
+		for _, v := range p.OfferID {
+			offerArr = append(offerArr, v.NullInt64)
+		}
+		CoinArr := []sql.NullInt64{}
+		for _, v := range p.CoinID {
+			CoinArr = append(CoinArr, v.NullInt64)
+		}
 		some := usecase.DeviceDTO{DeviceID: p.DeviceID.NullInt64, PriceLow: p.PriceLow.NullFloat64, PriceHigh: p.PriceHigh.NullFloat64, PowerLow: p.PowerLow.NullFloat64,
 			PowerHigh: p.PowerHigh.NullFloat64, HashrateHigh: p.HashrateHigh.NullFloat64, HashrateLow: p.HashrateLow.NullFloat64,
-			HashrateID: p.HashrateID.NullInt64, BrandID: p.BrandID.NullInt64, OfferID: p.OfferID.NullInt64, CoinID: p.CoinID.NullInt64, Recommended: p.Recommended.NullInt64}
+			HashrateID: p.HashrateID.NullInt64, BrandID: brandArr, OfferID: offerArr, CoinID: CoinArr, Recommended: p.Recommended.NullInt64}
 
 		result, err := uc.GetDevices(c.Context(), some)
 		if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	null "gopkg.in/guregu/null.v3/zero"
 	"strings"
 	"time"
@@ -99,9 +100,9 @@ type DeviceDTO struct {
 	HashrateLow  sql.NullFloat64 `json:"hashrateLow,omitempty"`
 	HashrateHigh sql.NullFloat64 `json:"hashrateHigh,omitempty"`
 	HashrateID   sql.NullInt64   `json:"hashrateID,omitempty"`
-	BrandID      sql.NullInt64   `json:"brandID,omitempty"`
-	OfferID      sql.NullInt64   `json:"offerID,omitempty"`
-	CoinID       sql.NullInt64   `json:"coinID,omitempty"`
+	BrandID      []sql.NullInt64 `json:"brandID,omitempty"`
+	OfferID      []sql.NullInt64 `json:"offerID,omitempty"`
+	CoinID       []sql.NullInt64 `json:"coinID,omitempty"`
 	Recommended  sql.NullInt64   `json:"recommended,omitempty"`
 }
 
@@ -134,17 +135,37 @@ func (r *Repository) GetDevice(ctx context.Context, id int) (Device, error) {
 
 func (r *Repository) GetDevices(ctx context.Context, p DeviceDTO) (result []Device, err error) {
 	q := ""
+	args := make([]interface{}, len(p.OfferID))
+	for i, id := range p.OfferID {
+		args[i] = id
+	}
 	//Абстрактный sql ,  с которого получаем данные
-	q = "SELECT DISTINCT devices.id,devices.name as name, cost,size,power,hashrate,algorithm,uid,video_url,c.name as coin_name,     " +
-		"           h.name as hash_name,ot.name as offer_name,recommended,dp.name as brand_name FROM devices    JOIN device_coin dc on devices.id = dc.device_id  " +
-		"  join coins c on dc.coin_id = c.id join device_producers dp on dp.id = devices.producer_id  " +
-		"  join hashrate h on h.id = devices.hashrate_id   " +
-		" join offer_types ot on devices.offer_type = ot.id WHERE (? is null or  cost >= ?)  and (? is null or cost <= ?) and( ? is null or power >= ?) and( ? is null or power <=?)" +
-		"and (? is null or  hashrate >= ? )and (? is null or hashrate <= ? )and ( ? is null or ot.id in(?)) and( ? is null or h.id =? )and (? is null or c.id in(?)) and( ? is null or dp.id in(?))" +
-		"  and( ? is null or recommended = ?) and( ? is null or devices.id = ?)"
 
-	err = r.db.SelectContext(ctx, &result, q, p.PriceLow, p.PriceLow, p.PriceHigh, p.PriceHigh, p.PowerLow, p.PowerLow, p.PowerHigh, p.PowerHigh, p.HashrateLow, p.HashrateLow, p.HashrateHigh, p.HashrateHigh,
-		p.OfferID, p.OfferID, p.HashrateID, p.HashrateID, p.CoinID, p.CoinID, p.BrandID, p.BrandID, p.Recommended, p.Recommended, p.DeviceID, p.DeviceID)
+	q = "SELECT DISTINCT devices.id,devices.name as name, cost,size,power,hashrate,algorithm,uid,video_url,c.name as coin_name,     " +
+		"           h.name as hash_name,ot.name as offer_name,recommended,dp.name as brand_name FROM devices  " +
+		"  JOIN device_coin dc on devices.id = dc.device_id  " +
+		"  join coins c on dc.coin_id = c.id" +
+		" join device_producers dp on dp.id = devices.producer_id  " +
+		"  join hashrate h on h.id = devices.hashrate_id   " +
+		" join offer_types ot on devices.offer_type = ot.id" +
+		" WHERE ($1::int is null or  cost >= $1::int )  and ($2::int  is null or cost <= $2::int ) " +
+		"and( $3::numeric  is null or power >= $3::numeric) and( $4::numeric is null or power <=$4::numeric)" +
+		"and ($5::int is null or  hashrate >= $5::int )and ($6::int is null or hashrate <= $6::int ) " +
+		"and ( $7::int[]  in(0,0) or ot.id  = any($7::int[])) and( $8::int is null or h.id = $8::int )and ($9::int[] in(0,0) or c.id = any($9::int[])) and( $10::int[] in(0,0)  or dp.id = any($10::int[]))" +
+		"and( $11::int is null or recommended = $11::int) and ( $12::int is null or devices.id = $12::int)"
+
+	err = r.db.SelectContext(ctx, &result, q, p.PriceLow,
+		p.PriceHigh,
+		p.PowerLow,
+		p.PowerHigh,
+		p.HashrateLow,
+		p.HashrateHigh,
+		pq.Array(p.OfferID),
+		p.HashrateID,
+		pq.Array(p.CoinID),
+		pq.Array(p.BrandID),
+		p.Recommended,
+		p.DeviceID)
 	if err != nil {
 		return []Device{}, err
 	}

@@ -1,0 +1,44 @@
+body {
+    background-image: url(../assets/Ellipse.png);
+    font-family: 'Inter';
+}
+
+.alodalogo {
+    color: #000;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+    margin-left: 74px;
+    margin-top: 64px;
+}
+
+.maintext {
+    color: #000;
+    font-family: Inter;
+    font-size: 128px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin-top: 152px;
+    margin-left: 137px;
+}
+
+.regulartext {
+    color: #000;
+    font-family: Inter;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    margin: auto;
+}
+
+.wrapper {
+    display: flex;
+}
+
+.block {
+    display: inline-block;
+}

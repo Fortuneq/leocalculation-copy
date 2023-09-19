@@ -105,12 +105,12 @@ type hashValues struct {
 }
 
 func Run() {
-	engine := html.New("front", ".html")
+	engine := html.New("../front", ".html")
 
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
-	app.Static("/", "front")
+	app.Static("/", "../front")
 	db, err := sqlx.Open("postgres", "postgres://postgres:dCmd5e5A6hUN8Yv@193.109.84.90/leomine?sslmode=disable")
 	if err != nil {
 		log.Fatal(err.Error())

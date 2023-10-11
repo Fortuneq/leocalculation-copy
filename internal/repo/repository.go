@@ -153,7 +153,6 @@ func (r *Repository) GetDevices(ctx context.Context, p DeviceDTO) (result []Devi
 		"and( $7::int is null or recommended = $7::int) and ( $8::int is null or devices.id = $8::int)"
 
 	err = r.db.SelectContext(ctx, &result, q, p.PriceLow,
-		p.PriceHigh,
 		p.PowerLow,
 		p.PowerHigh,
 		p.HashrateLow,

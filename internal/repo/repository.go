@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
 	null "gopkg.in/guregu/null.v3/zero"
 	"strings"
 	"time"
@@ -151,8 +150,7 @@ func (r *Repository) GetDevices(ctx context.Context, p DeviceDTO) (result []Devi
 		" WHERE ($1::int is null or  cost >= $1::int )  and ($2::int  is null or cost <= $2::int ) " +
 		"and( $3::numeric  is null or power >= $3::numeric) and( $4::numeric is null or power <=$4::numeric)" +
 		"and ($5::int is null or  hashrate >= $5::int )and ($6::int is null or hashrate <= $6::int ) " +
-		"and ( $7::int[]  in(0,0) or ot.id  = any($7::int[])) and( $8::int is null or h.id = $8::int )and ($9::int[] in(0,0) or c.id = any($9::int[])) and( $10::int[] in(0,0)  or dp.id = any($10::int[]))" +
-		"and( $11::int is null or recommended = $11::int) and ( $12::int is null or devices.id = $12::int)"
+		"and( $7::int is null or recommended = $7::int) and ( $8::int is null or devices.id = $8::int)"
 
 	err = r.db.SelectContext(ctx, &result, q, p.PriceLow,
 		p.PriceHigh,
@@ -160,10 +158,7 @@ func (r *Repository) GetDevices(ctx context.Context, p DeviceDTO) (result []Devi
 		p.PowerHigh,
 		p.HashrateLow,
 		p.HashrateHigh,
-		pq.Array(p.OfferID),
 		p.HashrateID,
-		pq.Array(p.CoinID),
-		pq.Array(p.BrandID),
 		p.Recommended,
 		p.DeviceID)
 	if err != nil {

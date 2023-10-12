@@ -147,9 +147,9 @@ func Run() {
 		return c.Status(fiber.StatusOK).JSON((result))
 	}).Name("api")
 
-	app.Post("/api/get_device_image", func(c *fiber.Ctx) error {
+	app.Get("/api/get_device_image", func(c *fiber.Ctx) error {
 		var p DeviceImageDTO
-		if err := c.BodyParser(&p); err != nil {
+		if err := c.QueryParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
 		}
 		some := make([]sql.NullInt64, 1)
@@ -165,9 +165,9 @@ func Run() {
 		return c.Status(fiber.StatusOK).JSON((result))
 	}).Name("api")
 
-	app.Post("/api/get_article_image", func(c *fiber.Ctx) error {
+	app.Get("/api/get_article_image", func(c *fiber.Ctx) error {
 		var p ArticleImageDTO
-		if err := c.BodyParser(&p); err != nil {
+		if err := c.QueryParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
 		}
 		some := make([]sql.NullInt64, 1)
@@ -183,9 +183,9 @@ func Run() {
 		return c.Status(fiber.StatusOK).JSON((result))
 	}).Name("api")
 
-	app.Post("/api/get_case_image", func(c *fiber.Ctx) error {
+	app.Get("/api/get_case_image", func(c *fiber.Ctx) error {
 		var p CaseImageDTO
-		if err := c.BodyParser(&p); err != nil {
+		if err := c.QueryParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
 		}
 		some := make([]sql.NullInt64, 1)
@@ -201,9 +201,9 @@ func Run() {
 		return c.Status(fiber.StatusOK).JSON((result))
 	}).Name("api")
 
-	app.Post("/api/get_device_review", func(c *fiber.Ctx) error {
+	app.Get("/api/get_device_review", func(c *fiber.Ctx) error {
 		var p ReviewDTO
-		if err := c.BodyParser(&p); err != nil {
+		if err := c.QueryParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
 		}
 		result, err := uc.GetReviews(c.Context(), p.DeviceID)
@@ -249,9 +249,9 @@ func Run() {
 		return c.SendStatus(fiber.StatusOK)
 	}).Name("api")
 
-	app.Post("/api/get_article", func(c *fiber.Ctx) error {
+	app.Get("/api/get_article", func(c *fiber.Ctx) error {
 		var p ArticleDTO
-		if err := c.BodyParser(&p); err != nil {
+		if err := c.QueryParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
 		}
 		result, err := uc.GetArticles(c.Context(), p.ArticleID)
@@ -261,9 +261,9 @@ func Run() {
 		return c.Status(fiber.StatusOK).JSON((result))
 	}).Name("api")
 
-	app.Post("/api/get_case", func(c *fiber.Ctx) error {
+	app.Get("/api/get_case", func(c *fiber.Ctx) error {
 		var p CaseDTO
-		if err := c.BodyParser(&p); err != nil {
+		if err := c.QueryParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
 		}
 		result, err := uc.GetCases(c.Context(), p.CaseID)

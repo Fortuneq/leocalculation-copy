@@ -123,9 +123,9 @@ func Run() {
 		return calculate(c, repo)
 	}).Name("api")
 
-	app.Post("/api/get_device", func(c *fiber.Ctx) error {
+	app.Get("/api/get_device", func(c *fiber.Ctx) error {
 		var p DeviceDTO
-		if err := c.BodyParser(&p); err != nil {
+		if err := c.QueryParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
 		}
 		some := usecase.DeviceDTO{DeviceID: p.DeviceID.NullInt64, PriceLow: p.PriceLow.NullFloat64, PriceHigh: p.PriceHigh.NullFloat64, PowerLow: p.PowerLow.NullFloat64,

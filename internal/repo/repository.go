@@ -106,7 +106,7 @@ type DeviceDTO struct {
 }
 
 type DeviceImageDTO struct {
-	DeviceID []sql.NullInt64 `json:"deviceID,omitempty"`
+	DeviceID []int64 `json:"deviceID,omitempty"`
 }
 
 type ArticleImageDTO struct {
@@ -171,6 +171,14 @@ func (r *Repository) GetDeviceImage(ctx context.Context, p DeviceImageDTO) (resu
 	args := make([]interface{}, len(p.DeviceID))
 	for i, id := range p.DeviceID {
 		args[i] = id
+	}
+	if len(p.DeviceID) == 0 {
+		stmt := `SELECT id,image from devices`
+		err = r.db.SelectContext(ctx, &result, stmt)
+		if err != nil {
+			return []DeviceImage{}, err
+		}
+		return result, err
 	}
 	stmt := `SELECT id,image from devices where id in(?` + strings.Repeat(",?", len(args)-1) + `)`
 	err = r.db.SelectContext(ctx, &result, stmt, args...)

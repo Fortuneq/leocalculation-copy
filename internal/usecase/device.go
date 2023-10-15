@@ -26,7 +26,7 @@ type DeviceDTO struct {
 	Recommended  sql.NullInt64   `json:"recommended,omitempty"`
 }
 type DeviceImageDTO struct {
-	DeviceID []sql.NullInt64 `json:"deviceID,omitempty"`
+	DeviceID []int64 `query:"deviceID,omitempty"`
 }
 
 type ArticleImageDTO struct {

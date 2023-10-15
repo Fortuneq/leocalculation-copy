@@ -41,7 +41,7 @@ type DeviceDTO struct {
 }
 
 type DeviceImageDTO struct {
-	DeviceID []null.Int `json:"deviceID,omitempty"`
+	DeviceID []int64 `query:"deviceID,omitempty"`
 }
 
 type ArticleImageDTO struct {
@@ -152,11 +152,7 @@ func Run() {
 		if err := c.QueryParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
 		}
-		some := make([]sql.NullInt64, 1)
-		for _, v := range p.DeviceID {
-			some = append(some, v.NullInt64)
-		}
-		d := usecase.DeviceImageDTO{DeviceID: some}
+		d := usecase.DeviceImageDTO{DeviceID: p.DeviceID}
 
 		result, err := uc.GetDeviceImage(c.Context(), d)
 		if err != nil {

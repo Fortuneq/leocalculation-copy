@@ -209,7 +209,7 @@ func Run() {
 		return c.Status(fiber.StatusOK).JSON((result))
 	}).Name("api")
 
-	app.Post("/api/get_call", func(c *fiber.Ctx) error {
+	app.Get("/api/get_call", func(c *fiber.Ctx) error {
 		var p GetCallDTO
 		if err := c.BodyParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))

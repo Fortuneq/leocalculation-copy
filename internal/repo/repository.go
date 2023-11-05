@@ -19,6 +19,7 @@ type Device struct {
 	Cost        float64 `db:"cost"`
 	Size        string  `db:"size"`
 	Power       float64 `db:"power"`
+	Quantity    int     `json:"quantity"`
 	Hashrate    float64 `db:"hashrate"`
 	UID         string  `db:"uid"`
 	Algorithm   string  `db:"algorithm"`

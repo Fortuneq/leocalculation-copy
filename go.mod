@@ -6,6 +6,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/gofiber/fiber/v2 v2.49.2
 	github.com/jmoiron/sqlx v1.3.5
+	github.com/lib/pq v1.2.0
 	gopkg.in/guregu/null.v3 v3.5.0
 )
 

@@ -26,22 +26,22 @@ type CalculateDTO struct {
 }
 
 type DeviceDTO struct {
-	DeviceID     null.Int   `json:"deviceID,omitempty"`
-	PriceLow     null.Float `json:"priceLow,omitempty"`
-	PriceHigh    null.Float `json:"priceHigh,omitempty"`
-	PowerLow     null.Float `json:"powerLow,omitempty"`
-	PowerHigh    null.Float `json:"powerHigh,omitempty"`
-	HashrateLow  null.Float `json:"hashrateLow,omitempty"`
-	HashrateHigh null.Float `json:"hashrateHigh,omitempty"`
-	HashrateID   null.Int   `json:"hashrateID,omitempty"`
-	BrandID      null.Int   `json:"brandID,omitempty"`
-	OfferID      null.Int   `json:"offerID,omitempty"`
-	CoinID       null.Int   `json:"coinID,omitempty"`
-	Recommended  null.Int   `json:"recommended,omitempty"`
+	DeviceID     *int64   `json:"deviceID,omitempty"`
+	PriceLow     *float64 `json:"priceLow,omitempty"`
+	PriceHigh    *float64 `json:"priceHigh,omitempty"`
+	PowerLow     *float64 `json:"powerLow,omitempty"`
+	PowerHigh    *float64 `json:"powerHigh,omitempty"`
+	HashrateLow  *float64 `json:"hashrateLow,omitempty"`
+	HashrateHigh *float64 `json:"hashrateHigh,omitempty"`
+	HashrateID   []*int64 `json:"hashrateID,omitempty"`
+	BrandID      []*int64 `json:"brandID,omitempty"`
+	OfferID      []*int64 `json:"offerID,omitempty"`
+	CoinID       []*int64 `json:"coinID,omitempty"`
+	Recommended  *int64   `json:"recommended,omitempty"`
 }
 
 type DeviceImageDTO struct {
-	DeviceID []int64 `query:"deviceID,omitempty"`
+	DeviceID []*int64 `query:"deviceID,omitempty"`
 }
 
 type ArticleImageDTO struct {
@@ -128,9 +128,9 @@ func Run() {
 		if err := c.QueryParser(&p); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON((err.Error()))
 		}
-		some := usecase.DeviceDTO{DeviceID: p.DeviceID.NullInt64, PriceLow: p.PriceLow.NullFloat64, PriceHigh: p.PriceHigh.NullFloat64, PowerLow: p.PowerLow.NullFloat64,
-			PowerHigh: p.PowerHigh.NullFloat64, HashrateHigh: p.HashrateHigh.NullFloat64, HashrateLow: p.HashrateLow.NullFloat64,
-			HashrateID: p.HashrateID.NullInt64, BrandID: p.BrandID.NullInt64, OfferID: p.OfferID.NullInt64, CoinID: p.CoinID.NullInt64, Recommended: p.Recommended.NullInt64}
+		some := usecase.DeviceDTO{DeviceID: p.DeviceID, PriceLow: p.PriceLow, PriceHigh: p.PriceHigh, PowerLow: p.PowerLow,
+			PowerHigh: p.PowerHigh, HashrateHigh: p.HashrateHigh, HashrateLow: p.HashrateLow,
+			HashrateID: p.HashrateID, BrandID: p.BrandID, OfferID: p.OfferID, CoinID: p.CoinID, Recommended: p.Recommended}
 
 		result, err := uc.GetDevices(c.Context(), some)
 		if err != nil {

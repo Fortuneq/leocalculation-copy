@@ -12,21 +12,21 @@ type Usecase struct {
 }
 
 type DeviceDTO struct {
-	DeviceID     sql.NullInt64   `json:"deviceID,omitempty"`
-	PriceLow     sql.NullFloat64 `json:"priceLow,omitempty"`
-	PriceHigh    sql.NullFloat64 `json:"priceHigh,omitempty"`
-	PowerLow     sql.NullFloat64 `json:"powerLow,omitempty"`
-	PowerHigh    sql.NullFloat64 `json:"powerHigh,omitempty"`
-	HashrateLow  sql.NullFloat64 `json:"hashrateLow,omitempty"`
-	HashrateHigh sql.NullFloat64 `json:"hashrateHigh,omitempty"`
-	HashrateID   sql.NullInt64   `json:"hashrateID,omitempty"`
-	BrandID      sql.NullInt64   `json:"brandID,omitempty"`
-	OfferID      sql.NullInt64   `json:"offerID,omitempty"`
-	CoinID       sql.NullInt64   `json:"coinID,omitempty"`
-	Recommended  sql.NullInt64   `json:"recommended,omitempty"`
+	DeviceID     *int64   `json:"deviceID,omitempty"`
+	PriceLow     *float64 `json:"priceLow,omitempty"`
+	PriceHigh    *float64 `json:"priceHigh,omitempty"`
+	PowerLow     *float64 `json:"powerLow,omitempty"`
+	PowerHigh    *float64 `json:"powerHigh,omitempty"`
+	HashrateLow  *float64 `json:"hashrateLow,omitempty"`
+	HashrateHigh *float64 `json:"hashrateHigh,omitempty"`
+	HashrateID   []*int64 `json:"hashrateID,omitempty"`
+	BrandID      []*int64 `json:"brandID,omitempty"`
+	OfferID      []*int64 `json:"offerID,omitempty"`
+	CoinID       []*int64 `json:"coinID,omitempty"`
+	Recommended  *int64   `json:"recommended,omitempty"`
 }
 type DeviceImageDTO struct {
-	DeviceID []int64 `query:"deviceID,omitempty"`
+	DeviceID []*int64 `query:"deviceID,omitempty"`
 }
 
 type ArticleImageDTO struct {

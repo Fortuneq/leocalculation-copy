@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	null "gopkg.in/guregu/null.v3/zero"
 	"strings"
@@ -92,22 +93,22 @@ type Cases struct {
 }
 
 type DeviceDTO struct {
-	DeviceID     sql.NullInt64   `json:"deviceID,omitempty"`
-	PriceLow     sql.NullFloat64 `json:"priceLow,omitempty"`
-	PriceHigh    sql.NullFloat64 `json:"priceHigh,omitempty"`
-	PowerLow     sql.NullFloat64 `json:"powerLow,omitempty"`
-	PowerHigh    sql.NullFloat64 `json:"powerHigh,omitempty"`
-	HashrateLow  sql.NullFloat64 `json:"hashrateLow,omitempty"`
-	HashrateHigh sql.NullFloat64 `json:"hashrateHigh,omitempty"`
-	HashrateID   sql.NullInt64   `json:"hashrateID,omitempty"`
-	BrandID      sql.NullInt64   `json:"brandID,omitempty"`
-	OfferID      sql.NullInt64   `json:"offerID,omitempty"`
-	CoinID       sql.NullInt64   `json:"coinID,omitempty"`
-	Recommended  sql.NullInt64   `json:"recommended,omitempty"`
+	DeviceID     *int64   `json:"deviceID,omitempty"`
+	PriceLow     *float64 `json:"priceLow,omitempty"`
+	PriceHigh    *float64 `json:"priceHigh,omitempty"`
+	PowerLow     *float64 `json:"powerLow,omitempty"`
+	PowerHigh    *float64 `json:"powerHigh,omitempty"`
+	HashrateLow  *float64 `json:"hashrateLow,omitempty"`
+	HashrateHigh *float64 `json:"hashrateHigh,omitempty"`
+	HashrateID   []*int64 `json:"hashrateID,omitempty"`
+	BrandID      []*int64 `json:"brandID,omitempty"`
+	OfferID      []*int64 `json:"offerID,omitempty"`
+	CoinID       []*int64 `json:"coinID,omitempty"`
+	Recommended  *int64   `json:"recommended,omitempty"`
 }
 
 type DeviceImageDTO struct {
-	DeviceID []int64 `json:"deviceID,omitempty"`
+	DeviceID []*int64 `json:"deviceID,omitempty"`
 }
 
 type ArticleImageDTO struct {
@@ -134,18 +135,120 @@ func (r *Repository) GetDevice(ctx context.Context, id int) (Device, error) {
 }
 
 func (r *Repository) GetDevices(ctx context.Context, p DeviceDTO) (result []Device, err error) {
-	q := ""
 	//Абстрактный sql ,  с которого получаем данные
-	q = "SELECT DISTINCT devices.id,devices.name as name, cost,size,power,hashrate,algorithm,uid,video_url,c.name as coin_name,     " +
-		"           h.name as hash_name,ot.name as offer_name,recommended,dp.name as brand_name FROM devices    JOIN device_coin dc on devices.id = dc.device_id  " +
-		"  join coins c on dc.coin_id = c.id join device_producers dp on dp.id = devices.producer_id  " +
-		"  join hashrate h on h.id = devices.hashrate_id   " +
-		" join offer_types ot on devices.offer_type = ot.id WHERE (? is null or  cost >= ?)  and (? is null or cost <= ?) and( ? is null or power >= ?) and( ? is null or power <=?)" +
-		"and (? is null or  hashrate >= ? )and (? is null or hashrate <= ? )and ( ? is null or ot.id in(?)) and( ? is null or h.id =? )and (? is null or c.id in(?)) and( ? is null or dp.id in(?))" +
-		"  and( ? is null or recommended = ?) and( ? is null or devices.id = ?)"
+	q := `
+SELECT DISTINCT devices.id, devices.name AS name, cost, size, power, hashrate, algorithm, uid, video_url, c.name AS coin_name,
+	h.name AS hash_name, ot.name AS offer_name, recommended, dp.name AS brand_name
+FROM devices
+JOIN device_coin dc ON devices.id = dc.device_id
+JOIN coins c ON dc.coin_id = c.id
+JOIN device_producers dp ON dp.id = devices.producer_id
+JOIN hashrate h ON h.id = devices.hashrate_id
+JOIN offer_types ot ON devices.offer_type = ot.id
+WHERE 1=1 
+`
+	if p.DeviceID != nil {
+		q += " AND   (? IS NULL OR devices.id = ?)\n"
+	}
+	if p.PriceLow != nil {
+		q += " AND   (? IS NULL OR cost >= ?)\n"
+	}
+	if p.PowerLow != nil {
+		q += " AND   (? IS NULL OR power >= ?)\n"
+	}
+	if p.PriceHigh != nil {
+		q += " AND   (? IS NULL OR cost <= ?)\n"
+	}
+	if p.PowerHigh != nil {
+		q += "  AND  (? IS NULL OR power <= ?)\n"
+	}
+	if p.HashrateLow != nil {
+		q += " AND   (? IS NULL OR hashrate >= ?)\n"
+	}
+	if p.HashrateHigh != nil {
+		q += " AND   (? IS NULL OR hashrate <= ?)\n"
+	}
+	if p.Recommended != nil {
+		q += "  AND  (? IS NULL OR recommended = ?)\n"
+	}
 
-	err = r.db.SelectContext(ctx, &result, q, p.PriceLow, p.PriceLow, p.PriceHigh, p.PriceHigh, p.PowerLow, p.PowerLow, p.PowerHigh, p.PowerHigh, p.HashrateLow, p.HashrateLow, p.HashrateHigh, p.HashrateHigh,
-		p.OfferID, p.OfferID, p.HashrateID, p.HashrateID, p.CoinID, p.CoinID, p.BrandID, p.BrandID, p.Recommended, p.Recommended, p.DeviceID, p.DeviceID)
+	params := make([]interface{}, 0)
+	if p.DeviceID != nil {
+		params = append(params, *p.DeviceID)
+		params = append(params, *p.DeviceID)
+	}
+	if p.PriceLow != nil {
+		params = append(params, *p.PriceLow)
+		params = append(params, *p.PriceLow)
+	}
+	if p.PriceHigh != nil {
+		params = append(params, *p.PriceHigh)
+		params = append(params, *p.PriceHigh)
+	}
+	if p.PowerLow != nil {
+		params = append(params, *p.PowerLow)
+		params = append(params, *p.PowerLow)
+	}
+	if p.PowerHigh != nil {
+		params = append(params, *p.PowerHigh)
+		params = append(params, *p.PowerHigh)
+	}
+	if p.HashrateLow != nil {
+		params = append(params, *p.HashrateLow)
+		params = append(params, *p.HashrateLow)
+	}
+	if p.HashrateHigh != nil {
+		params = append(params, *p.HashrateHigh)
+		params = append(params, *p.HashrateHigh)
+	}
+	if p.Recommended != nil {
+		params = append(params, *p.Recommended)
+		params = append(params, *p.Recommended)
+	}
+
+	var coinIDs []string
+	var offerIDs []string
+	var hashIDs []string
+	var brandIDs []string
+
+	// Формируем значения и подстановки из поля CoinID структуры
+	for _, v := range p.CoinID {
+		placeholder := fmt.Sprintf("%d", *v)
+		coinIDs = append(coinIDs, placeholder)
+		//params = append(params, *coinID)
+	}
+	if p.CoinID != nil && len(p.CoinID) > 0 {
+		q += fmt.Sprintf("AND ((COALESCE(%s IS NULL, 1) OR c.id IN (%s)))\n", strings.Join(coinIDs, ","), strings.Join(coinIDs, ","))
+	}
+
+	for _, v := range p.HashrateID {
+		placeholder := fmt.Sprintf("%d", *v)
+		hashIDs = append(hashIDs, placeholder)
+		//params = append(params, *coinID)
+	}
+	if p.HashrateID != nil && len(p.HashrateID) > 0 {
+		q += fmt.Sprintf("AND ((COALESCE(%s IS NULL, 1) OR h.id IN (%s)))\n", strings.Join(hashIDs, ","), strings.Join(hashIDs, ","))
+	}
+
+	for _, v := range p.OfferID {
+		placeholder := fmt.Sprintf("%d", *v)
+		offerIDs = append(offerIDs, placeholder)
+		//params = append(params, *coinID)
+	}
+	if p.OfferID != nil && len(p.OfferID) > 0 {
+		q += fmt.Sprintf("AND ((COALESCE(%s IS NULL, 1) OR ot.id IN (%s)))\n", strings.Join(offerIDs, ","), strings.Join(offerIDs, ","))
+	}
+
+	for _, v := range p.BrandID {
+		placeholder := fmt.Sprintf("%d", *v)
+		brandIDs = append(brandIDs, placeholder)
+		//params = append(params, *coinID)
+	}
+	if p.BrandID != nil && len(p.BrandID) > 0 {
+		q += fmt.Sprintf("AND ((COALESCE(%s IS NULL, 1) OR dp.id IN (%s)))\n", strings.Join(brandIDs, ","), strings.Join(brandIDs, ","))
+	}
+
+	err = r.db.SelectContext(ctx, &result, q, params...)
 	if err != nil {
 		return []Device{}, err
 	}
@@ -173,7 +276,8 @@ func (r *Repository) GetDeviceImage(ctx context.Context, p DeviceImageDTO) (resu
 	for i, id := range p.DeviceID {
 		args[i] = id
 	}
-	if len(p.DeviceID) == 0 {
+	var deviceIDS []string
+	if p.DeviceID == nil {
 		stmt := `SELECT id,image from devices`
 		err = r.db.SelectContext(ctx, &result, stmt)
 		if err != nil {
@@ -181,8 +285,13 @@ func (r *Repository) GetDeviceImage(ctx context.Context, p DeviceImageDTO) (resu
 		}
 		return result, err
 	}
-	stmt := `SELECT id,image from devices where id in(?` + strings.Repeat(",?", len(args)-1) + `)`
-	err = r.db.SelectContext(ctx, &result, stmt, args...)
+	for _, v := range p.DeviceID {
+		placeholder := fmt.Sprintf("%d", *v)
+		deviceIDS = append(deviceIDS, placeholder)
+		//params = append(params, *coinID)
+	}
+	stmt := fmt.Sprintf("SELECT id,image from devices where id in(%s)", strings.Join(deviceIDS, ","))
+	err = r.db.SelectContext(ctx, &result, stmt)
 	if err != nil {
 		return []DeviceImage{}, err
 	}

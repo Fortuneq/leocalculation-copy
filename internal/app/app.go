@@ -113,6 +113,7 @@ func Run() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	db.SetMaxIdleConns(0)
 	defer db.Close()
 
 	err = db.Ping()

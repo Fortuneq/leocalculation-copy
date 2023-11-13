@@ -7,10 +7,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"github.com/gofiber/fiber/v2"
-	null "gopkg.in/guregu/null.v3/zero"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/jmoiron/sqlx"
+	null "gopkg.in/guregu/null.v3/zero"
 	"io"
 	"io/ioutil"
 	"log"
@@ -105,7 +105,6 @@ type hashValues struct {
 
 func Run() {
 	app := fiber.New()
-
 
 	app.Use(cors.New())
 
@@ -306,7 +305,7 @@ func Run() {
 	data, _ := json.MarshalIndent(app.GetRoute("api"), "", "  ")
 	fmt.Print(string(data))
 
-	log.Fatal(app.Listen(":80"))
+	log.Fatal(app.ListenTLS(":80", "some.crt", "some.key"))
 }
 
 func GetBTCHashrate(some string) (b hashValues) {

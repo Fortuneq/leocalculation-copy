@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/gofiber/fiber/v2"
 	null "gopkg.in/guregu/null.v3/zero"
 	"io"
 	"io/ioutil"

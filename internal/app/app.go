@@ -10,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/gofiber/fiber/v2"
 	null "gopkg.in/guregu/null.v3/zero"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"io"
 	"io/ioutil"
 	"log"
@@ -104,6 +105,7 @@ type hashValues struct {
 
 func Run() {
 	app := fiber.New()
+
 
 	app.Use(cors.New())
 

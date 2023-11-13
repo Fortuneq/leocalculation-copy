@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
 	null "gopkg.in/guregu/null.v3/zero"
 	"io"
@@ -104,6 +103,8 @@ type hashValues struct {
 
 func Run() {
 	app := fiber.New()
+
+	app.Use(cors.New())
 
 	db, err := sqlx.Open("mysql", "root:dCmd5e5A6hUN8Yv@(193.109.84.90:3306)/leomine_schema")
 	if err != nil {

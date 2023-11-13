@@ -20,7 +20,7 @@ type Device struct {
 	Cost        float64 `db:"cost"`
 	Size        string  `db:"size"`
 	Power       float64 `db:"power"`
-	Quantity    int     `json:"quantity"`
+	Quantity    int     `json:"quantity" db:"quantity"`
 	Hashrate    float64 `db:"hashrate"`
 	UID         string  `db:"uid"`
 	Algorithm   string  `db:"algorithm"`
@@ -137,7 +137,7 @@ func (r *Repository) GetDevice(ctx context.Context, id int) (Device, error) {
 func (r *Repository) GetDevices(ctx context.Context, p DeviceDTO) (result []Device, err error) {
 	//Абстрактный sql ,  с которого получаем данные
 	q := `
-SELECT DISTINCT devices.id, devices.name AS name, cost, size, power, hashrate, algorithm, uid, video_url, c.name AS coin_name,
+SELECT DISTINCT devices.id, devices.name AS name, cost, size, power, hashrate,quantity, algorithm, uid, video_url, c.name AS coin_name,
 	h.name AS hash_name, ot.name AS offer_name, recommended, dp.name AS brand_name
 FROM devices
 JOIN device_coin dc ON devices.id = dc.device_id

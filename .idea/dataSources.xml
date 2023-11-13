@@ -15,5 +15,15 @@
       <jdbc-url>jdbc:mysql://193.109.84.90:3306/</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="u2333338_some@31.31.196.165" uuid="52d08eaa-8003-4ad8-a6c1-351e7d8cde1d">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://31.31.196.165:3306/u2333338_some</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+      <driver-properties>
+        <property name="useSSL" value="FALSE" />
+      </driver-properties>
+    </data-source>
   </component>
 </project>

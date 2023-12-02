@@ -427,6 +427,9 @@ func GetBTCHashrate(some string) (b hashValues) {
 
 func calculate(ctx *fiber.Ctx, repo *repo.Repository) error {
 	var p CalculateDTO
+	var result struct {
+		Result float64 `json:"result"`
+	}
 	if err := ctx.BodyParser(&p); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON((err.Error()))
 	}
@@ -449,7 +452,8 @@ func calculate(ctx *fiber.Ctx, repo *repo.Repository) error {
 
 	s := ((900/float64(x))*float64(dev.Hashrate)*float64(p.DaysWork))*btc - ((float64(dev.Power) / 1000) * float64(p.DaysWork) * 24 * (float64(f) / (1 / b.Rates.USD)))
 
-	return ctx.Status(fiber.StatusOK).JSON((s))
+	result.Result = s
+	return ctx.Status(fiber.StatusOK).JSON(result)
 }
 
 func GetBitcoinPrice() (price float64, err error) {

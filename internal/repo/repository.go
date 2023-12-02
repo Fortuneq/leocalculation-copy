@@ -123,7 +123,7 @@ func (r *Repository) GetDevice(ctx context.Context, id int) (Device, error) {
 
 	//Абстрактный sql ,  с которого получаем данные
 
-	q := "SELECT id,name, cost,image,size,power,hashrate,algorithm,uid,video_url FROM devices  where id = ?"
+	q := "SELECT id,name, cost,size,power,hashrate,algorithm FROM devices  where id = ?"
 
 	place := Device{}
 

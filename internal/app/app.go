@@ -23,6 +23,8 @@ import (
 type CalculateDTO struct {
 	DeviceID        int     `json:"deviceID"`
 	DaysWork        int     `json:"daysWork"`
+	Hashrate        float64 `json:"hashrate,omitempty"`
+	Power           float64 `json:"power,omitempty"`
 	ElectricityCost float64 `json:"electricityCost"`
 }
 
@@ -442,17 +444,26 @@ func calculate(ctx *fiber.Ctx, repo *repo.Repository) error {
 		x += math.Floor(i.Y)
 	}
 	x = x / float64(p.DaysWork)
+	if p.DeviceID != 0 {
+		dev, err := repo.GetDevice(context.Background(), p.DeviceID)
+		if err != nil {
+			return err
+		}
+		btc, _ := GetBitcoinPrice()
+		f := p.ElectricityCost
 
-	dev, err := repo.GetDevice(context.Background(), p.DeviceID)
-	if err != nil {
-		return err
+		s := ((900/float64(x))*float64(dev.Hashrate)*float64(p.DaysWork))*btc - ((float64(dev.Power) / 1000) * float64(p.DaysWork) * 24 * (float64(f) / (1 / b.Rates.USD)))
+
+		result.Result = s
+	} else {
+		btc, _ := GetBitcoinPrice()
+		f := p.ElectricityCost
+
+		s := ((900/float64(x))*float64(p.Hashrate)*float64(p.DaysWork))*btc - ((float64(p.Power) / 1000) * float64(p.DaysWork) * 24 * (float64(f) / (1 / b.Rates.USD)))
+
+		result.Result = s
 	}
-	btc, _ := GetBitcoinPrice()
-	f := p.ElectricityCost
 
-	s := ((900/float64(x))*float64(dev.Hashrate)*float64(p.DaysWork))*btc - ((float64(dev.Power) / 1000) * float64(p.DaysWork) * 24 * (float64(f) / (1 / b.Rates.USD)))
-
-	result.Result = s
 	return ctx.Status(fiber.StatusOK).JSON(result)
 }
 

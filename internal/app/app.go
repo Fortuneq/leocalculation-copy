@@ -153,6 +153,24 @@ func Run() {
 		return c.Status(fiber.StatusOK).JSON((result))
 	}).Name("api")
 
+	app.Get("/api/fetch_btc_to_usd", func(c *fiber.Ctx) error {
+
+		btc, _ := GetBitcoinPrice()
+		result := struct {
+			Result float64 `json:"result"`
+		}{Result: btc}
+
+		return c.Status(fiber.StatusOK).JSON(result)
+	}).Name("api")
+
+	app.Get("/api/fetch_usd_to_rub", func(c *fiber.Ctx) error {
+		b := GetDollarCourse("https://www.cbr-xml-daily.ru/latest.js")
+		result := struct {
+			Result float64 `json:"result"`
+		}{Result: 1 / b.Rates.USD}
+		return c.Status(fiber.StatusOK).JSON(result)
+	}).Name("api")
+
 	app.Get("/api/get_device_image", func(c *fiber.Ctx) error {
 		var p DeviceImageDTO
 		if err := c.QueryParser(&p); err != nil {
